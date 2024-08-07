@@ -1,0 +1,11 @@
+{
+  "type": "wildiron:add_item",
+  "chance": 0.8,
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/abandoned_mineshaft"
+    }
+  ],
+  "item": "wildiron:cowboy_hat"
+}

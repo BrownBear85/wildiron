@@ -1,0 +1,14 @@
+{
+  "item.wildiron.wild_iron": "Wild Iron",
+  "item.wildiron.cowboy_hat": "Honcho's Hat",
+  "item.wildiron.iron_bullet": "Iron Bullet",
+  "item.wildiron.gold_bullet": "Gold Bullet",
+  "itemGroup.wildiron": "Wild Iron",
+  "entity.wildiron.bullet": "Bullet",
+  "death.attack.wildiron": "%1$s saw the end of %2$s's Wild Iron",
+  "death.attack.wildiron.item": "%1$s saw the end of %2$s's %3$s",
+  "tooltip.wildiron.damage": "%d Damage",
+  "tooltip.wildiron.critChance": "%d%% Crit Chance",
+  "tooltip.wildiron.empty": "No Bullets",
+  "tooltip.wildiron.bullets": "Bullets:"
+}

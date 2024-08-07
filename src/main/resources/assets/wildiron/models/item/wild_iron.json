@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:builtin/entity",
+  "textures": {
+    "particle": "wildiron:item/wild_iron"
+  },
+  "gui_light": "front"
+}

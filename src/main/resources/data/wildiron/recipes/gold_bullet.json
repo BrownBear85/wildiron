@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NNN",
+    "NFN",
+    "NNN"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:fire_charge"
+    },
+    "N": {
+      "item": "minecraft:gold_nugget"
+    }
+  },
+  "result": {
+    "item": "wildiron:gold_bullet"
+  }
+}
