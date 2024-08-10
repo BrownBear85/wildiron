@@ -99,6 +99,7 @@ public class WildIron {
             if (damage > 0) {
                 ItemStack output = event.getLeft().copy();
                 output.setDamageValue(0);
+                event.setMaterialCost(1);
                 event.setOutput(output);
                 event.setCost(cost);
             }
