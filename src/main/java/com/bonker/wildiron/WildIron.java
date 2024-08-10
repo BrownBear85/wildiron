@@ -89,15 +89,14 @@ public class WildIron {
     }
 
     private void setAnvilRepairCost(AnvilUpdateEvent event) {
-        if (event.getLeft().is(WILD_IRON_ITEM.get()) &&
-                event.getLeft().getItem().isValidRepairItem(event.getLeft(), event.getRight()) &&
-                event.getRight().getCount() >= 10) {
-            int cost = event.getLeft().getDamageValue() / 2;
+        if (event.getLeft().is(WILD_IRON_ITEM.get()) && event.getLeft().getItem().isValidRepairItem(event.getLeft(), event.getRight())) {
+            int damage = event.getLeft().getDamageValue();
+            int cost = damage / 2;
             if (event.getName() != null && !event.getName().isEmpty()) {
                 cost++;
             }
 
-            if (cost > 0) {
+            if (damage > 0) {
                 ItemStack output = event.getLeft().copy();
                 output.setDamageValue(0);
                 event.setOutput(output);

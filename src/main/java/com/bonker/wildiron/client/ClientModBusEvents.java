@@ -2,7 +2,6 @@ package com.bonker.wildiron.client;
 
 import com.bonker.wildiron.WildIron;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
