@@ -1,6 +1,6 @@
 {
   "type": "wildiron:add_item",
-  "chance": 0.8,
+  "chance": 0.01,
   "conditions": [
     {
       "condition": "forge:loot_table_id",
