@@ -13,11 +13,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class BulletItem extends Item {
-    public final float damage;
+    public final double damage;
     public final float criticalChance;
     public final ResourceLocation entityTexture;
 
-    public BulletItem(float damage, float criticalChance, ResourceLocation entityTexture, Properties properties) {
+    public BulletItem(double damage, float criticalChance, ResourceLocation entityTexture, Properties properties) {
         super(properties);
         this.damage = damage;
         this.criticalChance = criticalChance;
@@ -28,7 +28,7 @@ public class BulletItem extends Item {
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         pTooltipComponents.add(Component.translatable("tooltip.wildiron.damage", damage).withStyle(ChatFormatting.DARK_GRAY));
         if (criticalChance > 0) {
-            pTooltipComponents.add(Component.translatable("tooltip.wildiron.critChance", Mth.floor(criticalChance * 100)).withStyle(ChatFormatting.DARK_GRAY));
+            pTooltipComponents.add(Component.translatable("tooltip.wildiron.crit_chance", Mth.floor(criticalChance * 100)).withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 }

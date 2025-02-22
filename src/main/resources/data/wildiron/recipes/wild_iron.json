@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "H  ",
+    "WII",
+    "WL "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:oak_log"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "H": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "L": {
+      "item": "minecraft:lever"
+    }
+  },
+  "result": {
+    "item": "wildiron:wild_iron",
+    "count": 1
+  }
+}

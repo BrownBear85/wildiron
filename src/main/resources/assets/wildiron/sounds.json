@@ -1,0 +1,29 @@
+{
+  "whoosh": {
+    "sounds": [
+      "wildiron:whoosh"
+    ],
+    "subtitle": "subtitles.wildiron.whoosh"
+  },
+  "load": {
+    "sounds": [
+      "wildiron:load"
+    ],
+    "subtitle": "subtitles.wildiron.load"
+  },
+  "empty": {
+    "sounds": [
+      "wildiron:empty"
+    ],
+    "subtitle": "subtitles.wildiron.empty"
+  },
+  "fire": {
+    "sounds": [
+      "wildiron:fire1",
+      "wildiron:fire2",
+      "wildiron:fire3",
+      "wildiron:fire4"
+    ],
+    "subtitle": "subtitles.wildiron.fire"
+  }
+}

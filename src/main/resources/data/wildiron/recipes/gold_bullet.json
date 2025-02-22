@@ -1,19 +1,36 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "NNN",
-    "NFN",
-    "NNN"
-  ],
-  "key": {
-    "F": {
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
       "item": "minecraft:fire_charge"
     },
-    "N": {
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
       "item": "minecraft:gold_nugget"
     }
-  },
+  ],
   "result": {
-    "item": "wildiron:gold_bullet"
+    "item": "wildiron:gold_bullet",
+    "count": 4
   }
 }

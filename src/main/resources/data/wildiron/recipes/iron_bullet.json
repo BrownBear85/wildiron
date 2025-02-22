@@ -1,19 +1,36 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "NNN",
-    "NFN",
-    "NNN"
-  ],
-  "key": {
-    "F": {
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
       "item": "minecraft:fire_charge"
     },
-    "N": {
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
+      "item": "minecraft:iron_nugget"
+    },
+    {
       "item": "minecraft:iron_nugget"
     }
-  },
+  ],
   "result": {
-    "item": "wildiron:iron_bullet"
+    "item": "wildiron:iron_bullet",
+    "count": 4
   }
 }

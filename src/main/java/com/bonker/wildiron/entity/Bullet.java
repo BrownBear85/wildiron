@@ -156,7 +156,7 @@ public class Bullet extends Projectile implements ItemSupplier {
     protected void onHitEntity(EntityHitResult hitResult) {
         if (!level().isClientSide && hitResult.getEntity().canBeHitByProjectile()) {
             ItemStack stack = getItem();
-            float damage = 2;
+            double damage = 2;
             if (stack.getItem() instanceof BulletItem bulletItem) {
                 damage = bulletItem.damage;
 
@@ -172,7 +172,7 @@ public class Bullet extends Projectile implements ItemSupplier {
                     player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
                 }
             }
-            hitResult.getEntity().hurt(makeDamageSource(), damage);
+            hitResult.getEntity().hurt(makeDamageSource(), (float) damage);
         }
     }
 

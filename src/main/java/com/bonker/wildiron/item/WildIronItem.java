@@ -5,21 +5,24 @@ import com.bonker.wildiron.client.WildIronClient;
 import com.bonker.wildiron.networking.FiredGunC2SPacket;
 import com.bonker.wildiron.networking.WildIronNetwork;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,10 +31,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class WildIronItem extends ProjectileWeaponItem {
-    public static final int FIRE_COOLDOWN = 24;
+    public static final int FIRE_COOLDOWN = 15;
     public static final float MAX_INACCURACY = 10.0F;
     public static final int MAX_BULLETS = 6;
-    public static final int BULLET_LOAD_TIME = 40;
+    public static final int BULLET_LOAD_TIME = 20;
 
     public WildIronItem(Item.Properties properties) {
         super(properties);
@@ -64,40 +67,83 @@ public class WildIronItem extends ProjectileWeaponItem {
 
     @Override
     public boolean isValidRepairItem(ItemStack pStack, ItemStack pRepairCandidate) {
-        return pRepairCandidate.is(Items.FEATHER);
+        return pRepairCandidate.is(Items.IRON_INGOT);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         long time = level.getGameTime();
-        if (level.isClientSide && canFire(stack, level) && time - WildIronClient.lastFired > 3) {
-            if (getBullets(stack).isEmpty()) {
-                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SAND_HIT, SoundSource.PLAYERS, 1.0F, 0.7F + player.getRandom().nextFloat() * 0.6F);
-                WildIronClient.startedLoading = time;
-            } else {
-                WildIronNetwork.sendToServer(new FiredGunC2SPacket(Mth.wrapDegrees(player.getXRot()), Mth.wrapDegrees(player.getYRot()), hand));
-                WildIronClient.lastFired = level.getGameTime();
+
+        if (level.isClientSide) {
+            if (WildIronClient.getAnim(handToArm(player, hand) == HumanoidArm.RIGHT).spin.getInterpolated(1) < 1) {
                 return InteractionResultHolder.pass(stack);
             }
-        }
 
-        if (!level.isClientSide && getBulletCount(stack) == 0 && !player.getProjectile(stack).isEmpty() && time - stack.getOrCreateTag().getLong("lastFired") > 10) {
-            player.startUsingItem(hand);
+            WildIronClient.startedLoading = time;
+            if (canFire(stack, level) && Math.abs(time - WildIronClient.lastFired) > 3 && !getBullets(stack).isEmpty()) {
+                WildIronNetwork.sendToServer(new FiredGunC2SPacket(Mth.wrapDegrees(player.getXRot()), Mth.wrapDegrees(player.getYRot()), hand));
+                WildIronClient.lastFired = level.getGameTime();
+                player.addDeltaMovement(player.getLookAngle().multiply(-0.1, -0.2, -0.1));
+            }
+        } else {
+            if (hand == InteractionHand.OFF_HAND) {
+                return InteractionResultHolder.pass(stack);
+            }
+
+            if (stack.getDamageValue() < stack.getMaxDamage() - 1 && getBulletCount(stack) == 0) {
+                if (player.getProjectile(stack).isEmpty()) {
+                    level.playSound(null, player.getX(), player.getY(), player.getZ(), WildIron.EMPTY.get(), SoundSource.PLAYERS, 0.6F, 0.9F + player.getRandom().nextFloat() * 0.2F);
+                } else if (time - stack.getOrCreateTag().getLong("lastFired") > 10) {
+                    ItemStack otherStack = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+                    if (otherStack.getItem() instanceof WildIronItem && WildIronItem.getBulletCount(otherStack) != 0) {
+                        return InteractionResultHolder.pass(stack);
+                    }
+
+                    player.startUsingItem(hand);
+                }
+            }
         }
 
         return InteractionResultHolder.pass(stack);
     }
 
+    public static HumanoidArm handToArm(Player player, InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
+    }
+
     @Override
     public void onUseTick(Level pLevel, LivingEntity pLivingEntity, ItemStack pStack, int pRemainingUseDuration) {
-        pRemainingUseDuration -= BULLET_LOAD_TIME;
         if (!pLevel.isClientSide) {
             int bullets = getBulletCount(pStack);
-            if (pRemainingUseDuration < (MAX_BULLETS - bullets) * BULLET_LOAD_TIME && pRemainingUseDuration % BULLET_LOAD_TIME == 0) {
+            if (pRemainingUseDuration < (MAX_BULLETS + 1 - bullets) * BULLET_LOAD_TIME && pRemainingUseDuration % BULLET_LOAD_TIME == 0) {
                 loadBullet(pLevel, pLivingEntity, pStack);
+                if (pLivingEntity.getProjectile(pStack).isEmpty()) {
+                    pLivingEntity.stopUsingItem();
+                }
             }
         }
+    }
+
+    @Override
+    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
+        if (entity instanceof Player player && player.level().isClientSide) {
+            if (count < (MAX_BULLETS + 1) * BULLET_LOAD_TIME - WildIronClient.PULL_OUT_TIME) {
+                WildIronClient.getAnim(handToArm(player, player.getUsedItemHand()) == HumanoidArm.RIGHT)
+                        .spin.reset(0.3556F);
+                player.level().playSound(player, player.getX(), player.getY(), player.getZ(), WildIron.WHOOSH.get(), SoundSource.PLAYERS, 1.0F, 0.8F + player.getRandom().nextFloat() * 0.4F);
+            }
+        }
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity) {
+        if (pLivingEntity instanceof Player player && player.level().isClientSide) {
+            WildIronClient.getAnim(handToArm(player, player.getUsedItemHand()) == HumanoidArm.RIGHT)
+                    .spin.reset(0.3556F);
+            player.level().playSound(player, player.getX(), player.getY(), player.getZ(), WildIron.WHOOSH.get(), SoundSource.PLAYERS, 1.0F, 0.8F + player.getRandom().nextFloat() * 0.4F);
+        }
+        return super.finishUsingItem(pStack, pLevel, pLivingEntity);
     }
 
     protected void loadBullet(Level level, LivingEntity entity, ItemStack stack) {
@@ -109,37 +155,46 @@ public class WildIronItem extends ProjectileWeaponItem {
         if (projectile.is(Items.ARROW)) {
             projectile = new ItemStack(WildIron.IRON_BULLET.get());
         }
-        level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.CROSSBOW_LOADING_END, SoundSource.PLAYERS, 1.0F, 0.6F + entity.getRandom().nextFloat() * 0.8F);
-        boolean full = addBullet(stack, projectile);
+        level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), WildIron.LOAD.get(), SoundSource.PLAYERS, 2.5F, 0.8F + entity.getRandom().nextFloat() * 0.5F);
+        addBullet(stack, projectile);
         if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
             projectile.shrink(1);
-        }
-        if (full || entity.getProjectile(stack).isEmpty()) {
-            entity.useItemRemaining = 20;
         }
     }
 
     @Override
     public int getUseDuration(ItemStack pStack) {
-        return (MAX_BULLETS - getBulletCount(pStack)) * BULLET_LOAD_TIME + BULLET_LOAD_TIME;
+        return (MAX_BULLETS + 1) * BULLET_LOAD_TIME;
     }
 
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+        if (pStack.getDamageValue() >= pStack.getMaxDamage() - 1) {
+            pTooltipComponents.add(Component.translatable("tooltip.wildiron.broken").withStyle(ChatFormatting.RED));
+        }
+
         List<ItemStack> bullets = getBullets(pStack);
         if (bullets.isEmpty()) {
-            pTooltipComponents.add(Component.translatable("tooltip.wildiron.empty").withStyle(ChatFormatting.DARK_GRAY));
+            pTooltipComponents.add(Component.translatable("tooltip.wildiron.empty", MAX_BULLETS).withStyle(ChatFormatting.DARK_GRAY));
         } else {
-            pTooltipComponents.add(Component.translatable("tooltip.wildiron.bullets").withStyle(ChatFormatting.GRAY));
+            pTooltipComponents.add(Component.translatable("tooltip.wildiron.bullets", bullets.size(), MAX_BULLETS).withStyle(ChatFormatting.GRAY));
             for (ItemStack bullet : bullets) {
                 pTooltipComponents.add(Component.literal(" - ").append(bullet.getHoverName()).withStyle(ChatFormatting.DARK_GRAY));
+            }
+        }
+
+        boolean shift = FMLEnvironment.dist == Dist.CLIENT && Screen.hasShiftDown();
+        pTooltipComponents.add(Component.translatable("tooltip.wildiron.hold_shift").withStyle(shift ? ChatFormatting.YELLOW : ChatFormatting.GRAY));
+        if (shift) {
+            for (int i = 0; i < 4; i++) {
+                pTooltipComponents.add(Component.literal("  ").append(Component.translatable("tooltip.wildiron.description_" + i).withStyle(ChatFormatting.GRAY)));
             }
         }
     }
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return false;
+        return slotChanged;
     }
 
     @Override

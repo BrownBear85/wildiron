@@ -5,6 +5,8 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
 
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 
@@ -91,8 +93,10 @@ minecraft {
         }
 
         server {
+            workingDirectory project.file('run-server')
+
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
+//            args '--nogui'
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -148,6 +152,14 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    // MixinGradle Settings
+    add sourceSets.main, 'mixins.wildiron.refmap.json'
+    config 'mixins.wildiron.json'
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

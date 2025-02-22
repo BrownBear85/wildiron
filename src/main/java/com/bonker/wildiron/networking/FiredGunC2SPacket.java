@@ -1,11 +1,11 @@
 package com.bonker.wildiron.networking;
 
+import com.bonker.wildiron.WildIron;
 import com.bonker.wildiron.entity.Bullet;
 import com.bonker.wildiron.item.WildIronItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -50,10 +50,14 @@ public record FiredGunC2SPacket(float xRot, float yRot, InteractionHand hand) {
                 bullet.shoot(xd, yd, zd, 4.0F, WildIronItem.getInaccuracyValue(player, gunStack));
                 level.addFreshEntity(bullet);
 
-                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.4F, 1.7F + player.getRandom().nextFloat() * 0.3F);
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), WildIron.FIRE.get(), SoundSource.PLAYERS, 0.5F, 0.8F + player.getRandom().nextFloat() * 0.4F);
 
                 gunStack.getOrCreateTag().putLong("lastFired", level.getGameTime());
                 gunStack.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
+
+                if (gunStack.getDamageValue() >= gunStack.getMaxDamage() - 1) {
+                    player.broadcastBreakEvent(hand);
+                }
 
                 if (!isCreative && !bulletStack.isEmpty()) {
                     bulletStack.shrink(1);
